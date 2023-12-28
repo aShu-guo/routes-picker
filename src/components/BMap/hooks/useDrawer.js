@@ -1,6 +1,7 @@
 import { PolylineDraw, PolygonDraw, OperateEventType, RectDraw, CircleDraw } from 'bmap-draw';
 import { inject, onMounted, ref, shallowRef, watch } from 'vue';
-export const InputDataChangeEvent = 'data-change';
+import { InputDataChangeEvent } from '@/utils/events.js';
+
 /**
  * 折线绘制hook
  * @return {{close: close, open: open}}
@@ -29,7 +30,33 @@ const usePolylineDrawer = (sceneRef) => {
     });
 
     sceneRef.value.addEventListener(OperateEventType.COMPLETE, (e) => {
-      emitter.emit(InputDataChangeEvent, polylineDraw.overlay.getPath());
+      // 创建地理编码实例, 并配置参数获取乡镇级数据
+      const geocoder = new BMapGL.Geocoder({ extensions_town: true });
+
+      const promiseList = [];
+      polylineDraw.overlay.getPath().forEach((item) => {
+        promiseList.push(
+          new Promise((resolve, reject) => {
+            geocoder.getLocation(new BMapGL.Point(item.lng, item.lat), function (result) {
+              if (result) {
+                resolve({
+                  ...item,
+                  address: result.address,
+                });
+              } else {
+                reject();
+              }
+            });
+          }),
+        );
+      });
+      Promise.allSettled(promiseList).then((points) => {
+        // 需要报告错误信息
+        emitter.emit(InputDataChangeEvent, {
+          points: points.map((item) => item.value),
+          length: polylineDraw.overlay.getLength(),
+        });
+      });
     });
   };
 
@@ -79,7 +106,10 @@ const usePolygonDrawer = (sceneRef) => {
     });
 
     sceneRef.value.addEventListener(OperateEventType.COMPLETE, (e) => {
-      emitter.emit(InputDataChangeEvent, polygonDraw.overlay.getPath());
+      emitter.emit(InputDataChangeEvent, {
+        points: polygonDraw.overlay.getPath(),
+        length: polygonDraw.overlay.getLength(),
+      });
     });
   };
 
@@ -131,7 +161,11 @@ const useCircleDrawer = (sceneRef) => {
     });
 
     sceneRef.value.addEventListener(OperateEventType.COMPLETE, (e) => {
-      emitter.emit(InputDataChangeEvent, circleDrawer.circle.getPath());
+      console.log('>>>circleDrawer:', circleDrawer);
+      emitter.emit(InputDataChangeEvent, {
+        points: circleDrawer.circle.getPath(),
+        length: Math.PI * Math.pow(circleDrawer.circle.getRadius(), 2),
+      });
     });
   };
 
@@ -183,7 +217,10 @@ const useRectDrawer = (sceneRef) => {
     });
 
     sceneRef.value.addEventListener(OperateEventType.COMPLETE, (e) => {
-      emitter.emit(InputDataChangeEvent, rectDrawer.polygon.getPath());
+      emitter.emit(InputDataChangeEvent, {
+        points: rectDrawer.polygon.getPath(),
+        length: rectDrawer.polygon.getLength(),
+      });
     });
   };
 

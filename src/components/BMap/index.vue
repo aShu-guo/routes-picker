@@ -1,7 +1,17 @@
 <template>
   <div class="w-full h-full">
     <DrawingPanel />
+
     <div id="bmap" class="w-full h-full"></div>
+
+    <Button
+      type="primary"
+      :icon="h(ClearOutlined)"
+      danger
+      class="absolute top-20px left-100px z-10"
+      @click="clearOverlays"
+      >清除覆盖物</Button
+    >
 
     <Drawer open title="配置表单" placement="right" :closable="false" :mask="false" :width="400">
       <ConfigForm />
@@ -10,14 +20,15 @@
 </template>
 
 <script setup>
-import { inject, onMounted, provide, ref, shallowRef } from 'vue';
-import { DrawScene, MarkerDraw } from 'bmap-draw';
-import { Drawer } from 'ant-design-vue';
+import { h, inject, onMounted, provide, ref, shallowRef } from 'vue';
+import { DrawScene, MarkerDraw, OperateEventType } from 'bmap-draw';
+import { Drawer, Button, Modal } from 'ant-design-vue';
 import DrawingPanel from '@components/BMap/DrawingPanel.vue';
 import ConfigForm from '@components/BMap/ConfigForm.vue';
 import useMap from './hooks/useMap.js';
 import mitt from 'mitt';
-import { InputDataChangeEvent } from '@components/BMap/hooks/useDrawer.js';
+import { ClearOutlined } from '@ant-design/icons-vue';
+import { ClearOverlaysEvent } from '@/utils/events.js';
 defineOptions({ name: 'BMap' });
 
 const emitter = mitt();
@@ -36,6 +47,21 @@ onMounted(() => {
     baseOpts: {},
   });
 });
+
+const clearOverlays = () => {
+  Modal.confirm({
+    closable: false,
+    content: () => {
+      return h('p', '确认清除所有覆盖物吗？');
+    },
+    cancelText: '取消',
+    okText: '确认',
+    onOk: () => {
+      mapRef.value.clearOverlays();
+      emitter.emit(ClearOverlaysEvent);
+    },
+  });
+};
 </script>
 
 <style lang="less" scoped></style>

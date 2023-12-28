@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import useDrawer, { InputDataChangeEvent } from '@components/BMap/hooks/useDrawer.js';
+import useDrawer from '@components/BMap/hooks/useDrawer.js';
 import { inject, onMounted } from 'vue';
 
 defineOptions({ name: 'DrawingPanel' });
