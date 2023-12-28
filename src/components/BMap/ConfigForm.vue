@@ -59,16 +59,7 @@
       </FormItem>
     </FormItem>
     <FormItem label="输出" name="output">
-      <TextArea
-        v-model:value="formState.output"
-        placeholder="输出数据"
-        :rows="8"
-        @change="
-          (e) => {
-            disabled = !formState.output;
-          }
-        "
-      />
+      <TextArea v-model:value="formState.output" placeholder="输出数据" :rows="8" />
     </FormItem>
     <FormItem :wrapper-col="{ span: 14, offset: 15 }">
       <Button type="primary" @click="exportHandler" :icon="h(DownloadOutlined)" :disabled="disabled">导出Excel</Button>
@@ -77,7 +68,7 @@
 </template>
 
 <script setup>
-import { inject, onMounted, reactive, h, ref } from 'vue';
+import { inject, onMounted, reactive, h, ref, computed } from 'vue';
 import { Button, Form, Input, Select, Switch } from 'ant-design-vue';
 import { AimOutlined, DownloadOutlined } from '@ant-design/icons-vue';
 import { basicSetup, EditorView } from 'codemirror';
@@ -93,8 +84,15 @@ defineOptions({ name: 'ConfigForm' });
 
 const formRef = ref();
 const mapRef = inject('mapRef');
-const disabled = ref(true);
-
+const disabled = computed(() => {
+  if (formState.output) {
+    const rawJson = JSON.parse(formState.output);
+    if (Array.isArray(rawJson)) {
+      return false;
+    }
+  }
+  return true;
+});
 const formState = reactive({
   trafficIsOpen: false,
   lng: '',
@@ -156,7 +154,6 @@ const center = () => {
 };
 
 const unitChange = (value) => {
-  console.log('>>>value:', value);
   switch (value) {
     case 'km':
       formState.length = formState.length / 1000;
