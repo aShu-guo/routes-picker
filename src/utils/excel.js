@@ -1,4 +1,4 @@
-import { utils, writeFileXLSX } from 'xlsx';
+import { utils, writeFileXLSX } from "xlsx";
 
 /**
  *

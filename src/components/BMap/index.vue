@@ -28,15 +28,16 @@
 </template>
 
 <script setup>
-import { h, inject, onMounted, provide, ref, shallowRef } from 'vue';
-import { DrawScene, MarkerDraw, OperateEventType } from 'bmap-draw';
-import { Drawer, Button, Modal } from 'ant-design-vue';
+import { h, onMounted, provide, shallowRef } from 'vue';
+import { DrawScene, MarkerDraw } from 'bmap-draw';
+import { Button, Drawer, Modal } from 'ant-design-vue';
 import DrawingPanel from '@components/BMap/DrawingPanel.vue';
 import ConfigForm from '@components/BMap/ConfigForm.vue';
 import useMap from './hooks/useMap.js';
 import mitt from 'mitt';
 import { ClearOutlined } from '@ant-design/icons-vue';
 import { ClearOverlaysEvent } from '@/utils/events.js';
+
 defineOptions({ name: 'BMap' });
 
 const emitter = mitt();

@@ -1,6 +1,6 @@
-import { PolylineDraw, PolygonDraw, OperateEventType, RectDraw, CircleDraw } from 'bmap-draw';
-import { inject, onMounted, ref, shallowRef, watch } from 'vue';
-import { InputDataChangeEvent } from '@/utils/events.js';
+import { CircleDraw, OperateEventType, PolygonDraw, PolylineDraw, RectDraw } from "bmap-draw";
+import { inject, ref, watch } from "vue";
+import { InputDataChangeEvent } from "@/utils/events.js";
 
 /**
  * 折线绘制hook

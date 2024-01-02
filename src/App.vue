@@ -29,7 +29,8 @@ import AMap from '@/components/AMap/index.vue';
 import { FloatButton, FloatButtonGroup } from 'ant-design-vue';
 import { AppstoreOutlined } from '@ant-design/icons-vue';
 import { ref } from 'vue';
-const mapType = ref('b');
+
+const mapType = ref('a');
 
 const openMap = (type) => {
   mapType.value = type;

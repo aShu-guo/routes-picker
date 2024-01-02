@@ -32,7 +32,7 @@
 
 <script setup>
 import useDrawer from '@components/BMap/hooks/useDrawer.js';
-import { inject, onMounted } from 'vue';
+import { inject } from 'vue';
 
 defineOptions({ name: 'DrawingPanel' });
 const sceneRef = inject('sceneRef');
