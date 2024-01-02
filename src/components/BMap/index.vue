@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full">
+  <div class="b-map-box w-full h-full">
     <DrawingPanel />
 
     <div id="bmap" class="w-full h-full"></div>
@@ -13,7 +13,15 @@
       >清除覆盖物</Button
     >
 
-    <Drawer open title="配置表单" placement="right" :closable="false" :mask="false" :width="400">
+    <Drawer
+      open
+      title="配置表单"
+      getContainer=".b-map-box"
+      placement="right"
+      :closable="false"
+      :mask="false"
+      :width="400"
+    >
       <ConfigForm />
     </Drawer>
   </div>
