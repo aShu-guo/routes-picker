@@ -31,13 +31,29 @@
 </template>
 
 <script setup>
-import useDrawer from '@components/BMap/hooks/useDrawer.js';
-import { inject } from 'vue';
+import { inject, watch } from 'vue';
+import useDrawer from '@components/AMap/hooks/useDrawer.js';
 
 defineOptions({ name: 'DrawingPanel' });
-const sceneRef = inject('sceneRef');
-const { geomType } = useDrawer(sceneRef);
+const props = defineProps({
+  loaded: {
+    type: Boolean,
+    default: false,
+    required:true,
+  },
+});
+const mapRef = inject('mapRef');
+const AMap = inject('AMap');
 
+const { geomType, init } = useDrawer(mapRef, AMap);
+watch(
+  () => props.loaded,
+  (newVal) => {
+    if (newVal) {
+      init();
+    }
+  },
+);
 const triggerDrawer = (type) => {
   if (geomType.value === type) {
     geomType.value = '';

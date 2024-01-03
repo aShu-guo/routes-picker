@@ -25,7 +25,7 @@
       name="center"
       :help="lngAndLatValidator.help"
       :validateStatus="lngAndLatValidator.status"
-      tooltip="BD-09坐标系下的经纬度"
+      tooltip="GCJ-02坐标系下的经纬度"
     >
       <FormItem class="inline-block w-40% mr-5% mb-0">
         <Input v-model:value="formState.lng" placeholder="经度" />
@@ -40,7 +40,7 @@
     </FormItem>
     <FormItem label="过滤器" name="filter">
       <div class="mt-5px select-none color-#999">function (data) {</div>
-      <div id="textarea-js-b"></div>
+      <div id="textarea-js"></div>
       <div class="select-none color-#999">}</div>
       <FormItem class="mb-0" :wrapper-col="{ span: 14, offset: 18 }">
         <Button type="primary" @click="execute">执行</Button>
@@ -72,6 +72,10 @@ defineOptions({ name: 'ConfigForm' });
 
 const formRef = ref();
 const mapRef = inject('mapRef');
+const AMap = inject('AMap');
+const layers = reactive({
+  traffic: null,
+});
 const disabled = computed(() => {
   if (formState.output) {
     const rawJson = JSON.parse(formState.output);
@@ -85,38 +89,45 @@ const formState = reactive({
   trafficIsOpen: false,
   lng: '',
   lat: '',
+  center: [],
   input: '{}',
   filter: '',
   output: '',
 });
 
 const emitter = inject('emitter');
-emitter.on(InputDataChangeEvent, ({ points, length }) => {
-  formState.input = JSON.stringify(points, null, 4);
+emitter.on(InputDataChangeEvent, (result) => {
+  formState.input = JSON.stringify(result, null, 4);
 });
 emitter.on(ClearOverlaysEvent, () => {
   formState.input = '{}';
-  formState.unit = 'm';
 });
 
 const lngAndLatValidator = reactive({
   status: '',
   help: '',
 });
-
 let editor = null;
 onMounted(() => {
   editor = new EditorView({
     extensions: [basicSetup, javascript(), autocompletion()],
-    parent: document.querySelector('#textarea-js-b'),
+    parent: document.querySelector('#textarea-js'),
   });
 });
 
 const toggleTraffic = (checked) => {
   if (checked) {
-    mapRef.value.setTrafficOn();
+    if (layers.traffic) {
+      layers.traffic.show();
+    } else {
+      layers.traffic = new AMap.value.TileLayer.Traffic({
+        autoRefresh: true, //是否自动刷新，默认为false
+        interval: 180, //刷新间隔，默认180s
+      });
+      mapRef.value.add(layers.traffic);
+    }
   } else {
-    mapRef.value.setTrafficOff();
+    layers.traffic.hide();
   }
 };
 
@@ -125,7 +136,7 @@ const center = () => {
     // 经度和纬度都填了
     lngAndLatValidator.status = '';
     lngAndLatValidator.help = '';
-    mapRef.value.flyTo(new BMapGL.Point(parseFloat(formState.lng), parseFloat(formState.lat)));
+    mapRef.value.panTo([parseFloat(formState.lng), parseFloat(formState.lat)]);
   } else if (formState.lng || formState.lat) {
     // 只填了经度和纬度其中一个
     lngAndLatValidator.status = 'warning';

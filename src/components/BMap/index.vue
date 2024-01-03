@@ -16,7 +16,6 @@
     <Drawer
       open
       title="配置表单"
-      getContainer=".b-map-box"
       placement="right"
       :closable="false"
       :mask="false"
